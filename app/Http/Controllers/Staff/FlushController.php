@@ -29,7 +29,7 @@ class FlushController extends Controller
     /**
      * FlushController Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
     }
 
@@ -37,16 +37,14 @@ class FlushController extends Controller
      * Flsuh All Old Peers From Database.
      *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function peers()
+    public function peers(): \Illuminate\Http\RedirectResponse
     {
         $carbon = new Carbon();
-        $peers = Peer::select(['id', 'info_hash', 'user_id', 'updated_at'])->where('updated_at', '<', $carbon->copy()->subHours(2)->toDateTimeString())->get();
+        $peers = Peer::select(['id', 'torrent_id', 'user_id', 'updated_at'])->where('updated_at', '<', $carbon->copy()->subHours(2)->toDateTimeString())->get();
 
         foreach ($peers as $peer) {
-            $history = History::where('info_hash', '=', $peer->info_hash)->where('user_id', '=', $peer->user_id)->first();
+            $history = History::where('torrent_id', '=', $peer->torrent_id)->where('user_id', '=', $peer->user_id)->first();
             if ($history) {
                 $history->active = false;
                 $history->save();
@@ -55,7 +53,7 @@ class FlushController extends Controller
             $peer->delete();
         }
 
-        return \redirect()->route('staff.dashboard.index')
+        return \to_route('staff.dashboard.index')
             ->withSuccess('Ghost Peers Have Been Flushed');
     }
 
@@ -63,10 +61,8 @@ class FlushController extends Controller
      * Flush All Chat Messages.
      *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function chat()
+    public function chat(): \Illuminate\Http\RedirectResponse
     {
         foreach (Message::all() as $message) {
             \broadcast(new MessageDeleted($message));
@@ -77,7 +73,7 @@ class FlushController extends Controller
             'Chatbox Has Been Flushed! :broom:'
         );
 
-        return \redirect()->route('staff.dashboard.index')
+        return \to_route('staff.dashboard.index')
             ->withSuccess('Chatbox Has Been Flushed');
     }
 }

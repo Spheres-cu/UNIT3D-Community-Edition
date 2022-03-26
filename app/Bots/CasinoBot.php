@@ -30,24 +30,24 @@ class CasinoBot
 
     private $chat;
 
-    private $target;
+    private ?\App\Models\User $target = null;
 
     private $type;
 
-    private $message;
+    private ?string $message = null;
 
-    private $targeted;
+    private ?int $targeted = null;
 
-    private $log;
+    private ?string $log = null;
 
-    private $expiresAt;
+    private readonly \Carbon\Carbon $expiresAt;
 
-    private $current;
+    private readonly \Carbon\Carbon $current;
 
     /**
      * NerdBot Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
         $bot = Bot::where('id', '=', '3')->firstOrFail();
         $this->bot = $bot;
@@ -57,17 +57,13 @@ class CasinoBot
 
     /**
      * Replace Vars.
-     *
-     * @param $output
-     *
-     * @return mixed
      */
-    public function replaceVars($output)
+    public function replaceVars($output): array|string
     {
         $output = \str_replace(['{me}', '{command}'], [$this->bot->name, $this->bot->command], $output);
-        if (\str_contains($output, '{bots}')) {
+        if (\str_contains((string) $output, '{bots}')) {
             $botHelp = '';
-            $bots = Bot::where('active', '=', 1)->where('id', '!=', $this->bot->id)->orderBy('position', 'asc')->get();
+            $bots = Bot::where('active', '=', 1)->where('id', '!=', $this->bot->id)->oldest('position')->get();
             foreach ($bots as $bot) {
                 $botHelp .= '( ! | / | @)'.$bot->command.' help triggers help file for '.$bot->name."\n";
             }
@@ -81,14 +77,10 @@ class CasinoBot
     /**
      * Send Bot Donation.
      *
-     * @param int    $amount
-     * @param string $note
      *
      * @throws \Exception
-     *
-     * @return string
      */
-    public function putDonate($amount = 0, $note = '')
+    public function putDonate(int $amount = 0, string $note = ''): string
     {
         $output = \implode($note, ' ');
         $v = \validator(['bot_id' => $this->bot->id, 'amount'=> $amount, 'note'=> $output], [
@@ -125,13 +117,10 @@ class CasinoBot
     /**
      * Get Bot Donations.
      *
-     * @param string $duration
      *
      * @throws \Exception
-     *
-     * @return string
      */
-    public function getDonations($duration = 'default')
+    public function getDonations(string $duration = 'default'): string
     {
         $donations = \cache()->get('casinobot-donations');
         if (! $donations) {
@@ -152,7 +141,7 @@ class CasinoBot
     /**
      * Get Help.
      */
-    public function getHelp()
+    public function getHelp(): array|string
     {
         return $this->replaceVars($this->bot->help);
     }
@@ -160,15 +149,9 @@ class CasinoBot
     /**
      * Process Message.
      *
-     * @param        $type
-     * @param string $message
-     * @param int    $targeted
-     *
      * @throws \Exception
-     *
-     * @return bool
      */
-    public function process($type, User $user, $message = '', $targeted = 0)
+    public function process($type, User $user, string $message = '', int $targeted = 0): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response|bool
     {
         $this->target = $user;
         if ($type == 'message') {
@@ -221,7 +204,7 @@ class CasinoBot
     /**
      * Output Message.
      */
-    public function pm()
+    public function pm(): \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\Response|bool
     {
         $type = $this->type;
         $target = $this->target;

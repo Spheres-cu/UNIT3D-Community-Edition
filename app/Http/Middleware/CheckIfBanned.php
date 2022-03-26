@@ -21,23 +21,18 @@ class CheckIfBanned
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param string|null              $guard
-     *
      * @throws \Exception
-     *
-     * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle(\Illuminate\Http\Request $request, Closure $next, ?string $guard = null): mixed
     {
         $user = $request->user();
         $bannedGroup = \cache()->rememberForever('banned_group', fn () => Group::where('slug', '=', 'banned')->pluck('id'));
 
-        if ($user && count($bannedGroup) > 0 && $user->group_id == $bannedGroup[0]) {
+        if ($user && (is_countable($bannedGroup) ? count($bannedGroup) : 0) > 0 && $user->group_id == $bannedGroup[0]) {
             \auth()->logout();
             $request->session()->flush();
 
-            return \redirect()->route('login')
+            return \to_route('login')
                 ->withErrors('This account is Banned!');
         }
 

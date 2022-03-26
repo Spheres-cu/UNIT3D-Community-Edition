@@ -26,7 +26,7 @@ class ChatStatusController extends Controller
     /**
      * ChatController Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
     }
 
@@ -44,11 +44,8 @@ class ChatStatusController extends Controller
 
     /**
      * Store A New Chat Status.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $chatstatus = new ChatStatus();
         $chatstatus->name = $request->input('name');
@@ -62,24 +59,20 @@ class ChatStatusController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.statuses.index')
+            return \to_route('staff.statuses.index')
                 ->withErrors($v->errors());
         }
 
         $chatstatus->save();
 
-        return \redirect()->route('staff.statuses.index')
+        return \to_route('staff.statuses.index')
             ->withSuccess('Chat Status Successfully Added');
     }
 
     /**
      * Update A Chat Status.
-     *
-     * @param \App\Models\ChatStatus $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $chatstatus = ChatStatus::findOrFail($id);
         $chatstatus->name = $request->input('name');
@@ -93,31 +86,27 @@ class ChatStatusController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.statuses.index')
+            return \to_route('staff.statuses.index')
                 ->withErrors($v->errors());
         }
 
         $chatstatus->save();
 
-        return \redirect()->route('staff.statuses.index')
+        return \to_route('staff.statuses.index')
             ->withSuccess('Chat Status Successfully Modified');
     }
 
     /**
      * Delete A Chat Status.
      *
-     * @param \App\Models\ChatStatus $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $chatstatus = ChatStatus::findOrFail($id);
         $chatstatus->delete();
 
-        return \redirect()->route('staff.statuses.index')
+        return \to_route('staff.statuses.index')
             ->withSuccess('Chat Status Successfully Deleted');
     }
 }

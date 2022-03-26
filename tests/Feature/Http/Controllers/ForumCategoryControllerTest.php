@@ -15,10 +15,8 @@ use Tests\TestCase;
 class ForumCategoryControllerTest extends TestCase
 {
     /** @test */
-    public function show_category_returns_an_ok_response()
+    public function show_category_returns_an_ok_response(): void
     {
-        $this->markTestIncomplete('This test is incomplete');
-
         $this->seed(UsersTableSeeder::class);
         $this->seed(GroupsTableSeeder::class);
 
@@ -41,7 +39,7 @@ class ForumCategoryControllerTest extends TestCase
     }
 
     /** @test */
-    public function show_forum_returns_an_ok_response()
+    public function show_forum_returns_an_ok_response(): void
     {
         $this->seed(UsersTableSeeder::class);
         $this->seed(GroupsTableSeeder::class);

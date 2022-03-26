@@ -43,11 +43,8 @@ class PageController extends Controller
 
     /**
      * Store A New Page.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $page = new Page();
         $page->name = $request->input('name');
@@ -61,22 +58,20 @@ class PageController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.pages.index')
+            return \to_route('staff.pages.index')
                 ->withErrors($v->errors());
         }
 
         $page->save();
 
-        return \redirect()->route('staff.pages.index')
+        return \to_route('staff.pages.index')
             ->withSuccess('Page has been created successfully');
     }
 
     /**
      * Page Edit Form.
-     *
-     * @param \App\Models\Page $id
      */
-    public function edit($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function edit(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $page = Page::findOrFail($id);
 
@@ -85,12 +80,8 @@ class PageController extends Controller
 
     /**
      * Edit A Page.
-     *
-     * @param \App\Models\Page $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $page = Page::findOrFail($id);
         $page->name = $request->input('name');
@@ -104,30 +95,26 @@ class PageController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.pages.index')
+            return \to_route('staff.pages.index')
                 ->withErrors($v->errors());
         }
 
         $page->save();
 
-        return \redirect()->route('staff.pages.index')
+        return \to_route('staff.pages.index')
             ->withSuccess('Page has been edited successfully');
     }
 
     /**
      * Delete A Page.
      *
-     * @param \App\Models\Page $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         Page::findOrFail($id)->delete();
 
-        return \redirect()->route('staff.pages.index')
+        return \to_route('staff.pages.index')
             ->withSuccess('Page has been deleted successfully');
     }
 }

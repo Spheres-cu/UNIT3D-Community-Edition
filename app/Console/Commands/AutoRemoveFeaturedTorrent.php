@@ -27,7 +27,7 @@ class AutoRemoveFeaturedTorrent extends Command
     /**
      * AutoRemoveFeaturedTorrent Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
         parent::__construct();
     }
@@ -48,10 +48,8 @@ class AutoRemoveFeaturedTorrent extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $current = Carbon::now();
         $featuredTorrents = FeaturedTorrent::where('created_at', '<', $current->copy()->subDays(7)->toDateTimeString())->get();

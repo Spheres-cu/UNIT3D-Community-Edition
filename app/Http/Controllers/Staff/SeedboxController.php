@@ -35,13 +35,9 @@ class SeedboxController extends Controller
     /**
      * Delete A Registered Seedbox.
      *
-     * @param \App\Models\Seedbox $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, Seedbox $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         $seedbox = Seedbox::findOrFail($id);
@@ -49,7 +45,7 @@ class SeedboxController extends Controller
         \abort_unless($user->group->is_modo, 403);
         $seedbox->delete();
 
-        return \redirect()->route('staff.seedboxes.index')
+        return \to_route('staff.seedboxes.index')
             ->withSuccess('Seedbox Record Has Successfully Been Deleted');
     }
 }

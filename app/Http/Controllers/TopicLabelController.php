@@ -22,120 +22,92 @@ class TopicLabelController extends Controller
 {
     /**
      * Apply/Remove Approved Label.
-     *
-     * @param \App\Models\Topic $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function approve($id)
+    public function approve(int $id): \Illuminate\Http\RedirectResponse
     {
         $topic = Topic::findOrFail($id);
         $topic->approved = $topic->approved == 0 ? '1' : '0';
         $topic->save();
 
-        return \redirect()->route('forum_topic', ['id' => $topic->id])
+        return \to_route('forum_topic', ['id' => $topic->id])
             ->withInfo('Label Change Has Been Applied');
     }
 
     /**
      * Apply/Remove Denied Label.
-     *
-     * @param \App\Models\Topic $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function deny($id)
+    public function deny(int $id): \Illuminate\Http\RedirectResponse
     {
         $topic = Topic::findOrFail($id);
         $topic->denied = $topic->denied == 0 ? '1' : '0';
         $topic->save();
 
-        return \redirect()->route('forum_topic', ['id' => $topic->id])
+        return \to_route('forum_topic', ['id' => $topic->id])
             ->withInfo('Label Change Has Been Applied');
     }
 
     /**
      * Apply/Remove Solved Label.
-     *
-     * @param \App\Models\Topic $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function solve($id)
+    public function solve(int $id): \Illuminate\Http\RedirectResponse
     {
         $topic = Topic::findOrFail($id);
         $topic->solved = $topic->solved == 0 ? '1' : '0';
         $topic->save();
 
-        return \redirect()->route('forum_topic', ['id' => $topic->id])
+        return \to_route('forum_topic', ['id' => $topic->id])
             ->withInfo('Label Change Has Been Applied');
     }
 
     /**
      * Apply/Remove Invalid Label.
-     *
-     * @param \App\Models\Topic $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function invalid($id)
+    public function invalid(int $id): \Illuminate\Http\RedirectResponse
     {
         $topic = Topic::findOrFail($id);
         $topic->invalid = $topic->invalid == 0 ? '1' : '0';
         $topic->save();
 
-        return \redirect()->route('forum_topic', ['id' => $topic->id])
+        return \to_route('forum_topic', ['id' => $topic->id])
             ->withInfo('Label Change Has Been Applied');
     }
 
     /**
      * Apply/Remove Bug Label.
-     *
-     * @param \App\Models\Topic $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function bug($id)
+    public function bug(int $id): \Illuminate\Http\RedirectResponse
     {
         $topic = Topic::findOrFail($id);
         $topic->bug = $topic->bug == 0 ? '1' : '0';
         $topic->save();
 
-        return \redirect()->route('forum_topic', ['id' => $topic->id])
+        return \to_route('forum_topic', ['id' => $topic->id])
             ->withInfo('Label Change Has Been Applied');
     }
 
     /**
      * Apply/Remove Suggestion Label.
-     *
-     * @param \App\Models\Topic $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function suggest($id)
+    public function suggest(int $id): \Illuminate\Http\RedirectResponse
     {
         $topic = Topic::findOrFail($id);
         $topic->suggestion = $topic->suggestion == 0 ? '1' : '0';
         $topic->save();
 
-        return \redirect()->route('forum_topic', ['id' => $topic->id])
+        return \to_route('forum_topic', ['id' => $topic->id])
             ->withInfo('Label Change Has Been Applied');
     }
 
     /**
      * Apply/Remove Implemented Label.
-     *
-     * @param \App\Models\Topic $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function implement($id)
+    public function implement(int $id): \Illuminate\Http\RedirectResponse
     {
         $topic = Topic::findOrFail($id);
         $topic->implemented = $topic->implemented == 0 ? '1' : '0';
         $topic->save();
 
-        return \redirect()->route('forum_topic', ['id' => $topic->id])
+        return \to_route('forum_topic', ['id' => $topic->id])
             ->withInfo('Label Change Has Been Applied');
     }
 }

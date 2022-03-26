@@ -41,13 +41,9 @@ class BanController extends Controller
     /**
      * Ban A User (current_group -> banned).
      *
-     * @param \App\Models\User $username
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request, $username)
+    public function store(Request $request, string $username): \Illuminate\Http\RedirectResponse
     {
         $user = User::where('username', '=', $username)->firstOrFail();
         $staff = $request->user();
@@ -73,7 +69,7 @@ class BanController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('users.show', ['username' => $user->username])
+            return \to_route('users.show', ['username' => $user->username])
                 ->withErrors($v->errors());
         }
 
@@ -82,18 +78,14 @@ class BanController extends Controller
         // Send Email
         Mail::to($user->email)->send(new BanUser($user->email, $ban));
 
-        return \redirect()->route('users.show', ['username' => $user->username])
+        return \to_route('users.show', ['username' => $user->username])
             ->withSuccess('User Is Now Banned!');
     }
 
     /**
      * Unban A User (banned -> new_group).
-     *
-     * @param \App\Models\User $username
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $username)
+    public function update(Request $request, string $username): \Illuminate\Http\RedirectResponse
     {
         $user = User::where('username', '=', $username)->firstOrFail();
         $staff = $request->user();
@@ -120,7 +112,7 @@ class BanController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('users.show', ['username' => $user->username])
+            return \to_route('users.show', ['username' => $user->username])
                 ->withErrors($v->errors());
         }
 
@@ -129,7 +121,7 @@ class BanController extends Controller
         // Send Email
         Mail::to($user->email)->send(new UnbanUser($user->email, $ban));
 
-        return \redirect()->route('users.show', ['username' => $user->username])
+        return \to_route('users.show', ['username' => $user->username])
             ->withSuccess('User Is Now Relieved Of His Ban!');
     }
 }

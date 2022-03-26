@@ -43,11 +43,8 @@ class TypeController extends Controller
 
     /**
      * Store A New Type.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $type = new Type();
         $type->name = $request->input('name');
@@ -61,22 +58,20 @@ class TypeController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.types.index')
+            return \to_route('staff.types.index')
                 ->withErrors($v->errors());
         }
 
         $type->save();
 
-        return \redirect()->route('staff.types.index')
+        return \to_route('staff.types.index')
             ->withSuccess('Type Successfully Added');
     }
 
     /**
      * Type Edit Form.
-     *
-     * @param \App\Models\Type $id
      */
-    public function edit($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function edit(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $type = Type::findOrFail($id);
 
@@ -85,12 +80,8 @@ class TypeController extends Controller
 
     /**
      * Edit A Type.
-     *
-     * @param \App\Models\Type $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $type = Type::findOrFail($id);
         $type->name = $request->input('name');
@@ -104,31 +95,27 @@ class TypeController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.types.index')
+            return \to_route('staff.types.index')
                 ->withErrors($v->errors());
         }
 
         $type->save();
 
-        return \redirect()->route('staff.types.index')
+        return \to_route('staff.types.index')
             ->withSuccess('Type Successfully Modified');
     }
 
     /**
      * Delete A Type.
      *
-     * @param \App\Models\Type $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $type = Type::findOrFail($id);
         $type->delete();
 
-        return \redirect()->route('staff.types.index')
+        return \to_route('staff.types.index')
             ->withSuccess('Type Successfully Deleted');
     }
 }

@@ -40,13 +40,13 @@ class SimilarTorrent extends Component
 
     public $checked = [];
 
-    public $selectPage = false;
+    public bool $selectPage = false;
 
-    public $selectAll = false;
+    public bool $selectAll = false;
 
-    public $sortField = 'bumped_at';
+    public string $sortField = 'bumped_at';
 
-    public $sortDirection = 'desc';
+    public string $sortDirection = 'desc';
 
     protected $listeners = ['destroy' => 'deleteRecords'];
 
@@ -71,7 +71,7 @@ class SimilarTorrent extends Component
         return in_array($torrentId, $this->checked);
     }
 
-    final public function getTorrentsProperty(): \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Collection
+    final public function getTorrentsProperty(): \Illuminate\Support\Collection
     {
         $category = Category::findOrFail($this->categoryId);
 
@@ -128,7 +128,7 @@ class SimilarTorrent extends Component
         $titles = [];
         foreach ($torrents as $torrent) {
             $names[] = $torrent->name;
-            foreach (History::where('info_hash', '=', $torrent->info_hash)->get() as $pm) {
+            foreach (History::where('torrent_id', '=', $torrent->id)->get() as $pm) {
                 if (! in_array($pm->user_id, $users)) {
                     $users[] = $pm->user_id;
                 }
@@ -176,7 +176,7 @@ class SimilarTorrent extends Component
             //Remove Torrent related info
             \cache()->forget(\sprintf('torrent:%s', $torrent->info_hash));
             Peer::where('torrent_id', '=', $torrent->id)->delete();
-            History::where('info_hash', '=', $torrent->info_hash)->delete();
+            History::where('torrent_id', '=', $torrent->id)->delete();
             Warning::where('torrent', '=', $torrent->id)->delete();
             TorrentFile::where('torrent_id', '=', $torrent->id)->delete();
             PlaylistTorrent::where('torrent_id', '=', $torrent->id)->delete();

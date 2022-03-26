@@ -44,11 +44,8 @@ class ArticleController extends Controller
 
     /**
      * Store A New Article.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $article = new Article();
         $article->title = $request->input('title');
@@ -75,22 +72,20 @@ class ArticleController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.articles.index')
+            return \to_route('staff.articles.index')
                 ->withErrors($v->errors());
         }
 
         $article->save();
 
-        return \redirect()->route('staff.articles.index')
+        return \to_route('staff.articles.index')
             ->withSuccess('Your article has successfully published!');
     }
 
     /**
      * Article Edit Form.
-     *
-     * @param \App\Models\Article $id
      */
-    public function edit($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function edit(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $article = Article::findOrFail($id);
 
@@ -99,12 +94,8 @@ class ArticleController extends Controller
 
     /**
      * Edit A Article.
-     *
-     * @param \App\Models\Article $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $article = Article::findOrFail($id);
         $article->title = $request->input('title');
@@ -129,26 +120,22 @@ class ArticleController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.articles.index')
+            return \to_route('staff.articles.index')
                 ->withErrors($v->errors());
         }
 
         $article->save();
 
-        return \redirect()->route('staff.articles.index')
+        return \to_route('staff.articles.index')
             ->withSuccess('Your article changes have successfully published!');
     }
 
     /**
      * Delete A Article.
      *
-     * @param \App\Models\Article $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $article = Article::with('comments')->findOrFail($id);
         foreach ($article->comments as $comment) {
@@ -156,7 +143,7 @@ class ArticleController extends Controller
         }
         $article->delete();
 
-        return \redirect()->route('staff.articles.index')
+        return \to_route('staff.articles.index')
             ->withSuccess('Article has successfully been deleted');
     }
 }

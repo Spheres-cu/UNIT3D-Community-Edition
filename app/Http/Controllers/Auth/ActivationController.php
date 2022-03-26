@@ -22,7 +22,7 @@ use App\Models\UserActivation;
  */
 class ActivationController extends Controller
 {
-    public function activate($token)
+    public function activate($token): \Illuminate\Http\RedirectResponse
     {
         $bannedGroup = \cache()->rememberForever('banned_group', fn () => Group::where('slug', '=', 'banned')->pluck('id'));
         $memberGroup = \cache()->rememberForever('member_group', fn () => Group::where('slug', '=', 'user')->pluck('id'));
@@ -40,11 +40,11 @@ class ActivationController extends Controller
 
             $activation->delete();
 
-            return \redirect()->route('login')
+            return \to_route('login')
                 ->withSuccess(\trans('auth.activation-success'));
         }
 
-        return \redirect()->route('login')
+        return \to_route('login')
             ->withErrors(\trans('auth.activation-error'));
     }
 }

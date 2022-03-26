@@ -24,12 +24,9 @@ class TwoStepAuth
     /**
      * Handle an incoming request.
      *
-     *
      * @throws \Exception
-     *
-     * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): mixed
     {
         $response = $next($request);
         $uri = $request->path();
@@ -48,7 +45,7 @@ class TwoStepAuth
                 \session(['nextUri' => $nextUri]);
 
                 if (\config('auth.TwoStepEnabled') && $user->twostep == 1 && ! $this->twoStepVerification()) {
-                    return \redirect()->route('verificationNeeded');
+                    return \to_route('verificationNeeded');
                 }
 
                 break;

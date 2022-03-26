@@ -29,19 +29,19 @@ class AuditController extends Controller
     {
         $audits = Audit::with('user')->latest()->paginate(50);
 
+        foreach ($audits as $audit) {
+            $audit->values = json_decode($audit->record, true, 512, JSON_THROW_ON_ERROR);
+        }
+
         return \view('Staff.audit.index', ['audits' => $audits]);
     }
 
     /**
      * Delete A Audit.
      *
-     * @param \App\Models\Audit $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         $audit = Audit::findOrFail($id);
@@ -49,7 +49,7 @@ class AuditController extends Controller
         \abort_unless($user->group->is_modo, 403);
         $audit->delete();
 
-        return \redirect()->route('staff.audits.index')
+        return \to_route('staff.audits.index')
             ->withSuccess('Audit Record Has Successfully Been Deleted');
     }
 }

@@ -35,30 +35,26 @@ class ReportController extends Controller
 
     /**
      * Show A Report.
-     *
-     * @param \App\Models\Report $id
      */
-    public function show($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function show(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $report = Report::findOrFail($id);
 
-        \preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $report->message, $match);
+        \preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', (string) $report->message, $match);
 
         return \view('Staff.report.show', ['report' => $report, 'urls' => $match[0]]);
     }
 
     /**
      * Update A Report.
-     *
-     * @param \App\Models\Report $id
      */
-    public function update(Request $request, $id): \Illuminate\Http\RedirectResponse
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = \auth()->user();
 
         $report = Report::findOrFail($id);
         if ($report->solved == 1) {
-            return \redirect()->route('staff.reports.index')
+            return \to_route('staff.reports.index')
                 ->withErrors('This Report Has Already Been Solved');
         }
 
@@ -72,7 +68,7 @@ class ReportController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.reports.show', ['id' => $report->id])
+            return \to_route('staff.reports.show', ['id' => $report->id])
                 ->withErrors($v->errors());
         }
 
@@ -90,7 +86,7 @@ class ReportController extends Controller
                         [b]VERDICT:[/b] %s', $report->title, $report->message, $report->verdict);
         $privateMessage->save();
 
-        return \redirect()->route('staff.reports.index')
+        return \to_route('staff.reports.index')
             ->withSuccess('Report has been successfully resolved');
     }
 }

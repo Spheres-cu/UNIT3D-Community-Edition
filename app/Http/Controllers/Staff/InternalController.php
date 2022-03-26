@@ -38,12 +38,8 @@ class InternalController extends Controller
 
     /**
      * Edit A group.
-     *
-     * @param \App\Models\UsersVIP $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function edit(Request $request, $id)
+    public function edit(Request $request, int $id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $user = $request->user();
         \abort_unless($user->group->is_modo, 403);
@@ -56,12 +52,8 @@ class InternalController extends Controller
 
     /**
      * Save a group change.
-     *
-     * @param \App\Models\UsersVIP $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         \abort_unless($user->group->is_modo, 403);
@@ -79,13 +71,13 @@ class InternalController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.internals.index')
+            return \to_route('staff.internals.index')
                 ->withErrors($v->errors());
         }
 
         $internal->save();
 
-        return \redirect()->route('staff.internals.index')
+        return \to_route('staff.internals.index')
             ->withSuccess('Internal Group Was Updated Successfully!');
     }
 
@@ -99,11 +91,8 @@ class InternalController extends Controller
 
     /**
      * Store A New Internal Group.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         \abort_unless($user->group->is_admin, 403);
@@ -120,24 +109,20 @@ class InternalController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.internals.index')
+            return \to_route('staff.internals.index')
                 ->withErrors($v->errors());
         }
 
         $internal->save();
 
-        return \redirect()->route('staff.internals.index')
+        return \to_route('staff.internals.index')
             ->withSuccess('New Internal Group added!');
     }
 
     /**
      * Delete A Internal Group.
-     *
-     * @param $commentId
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         $internal = Internal::findOrFail($id);
@@ -145,7 +130,7 @@ class InternalController extends Controller
         \abort_unless($user->group->is_admin, 403);
         $internal->delete();
 
-        return \redirect()->route('staff.internals.index')
+        return \to_route('staff.internals.index')
             ->withSuccess('Group Has Been Removed.');
     }
 }

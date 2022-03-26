@@ -25,17 +25,17 @@ class LanguageCensor
      */
     private const SPECIAL_CHARS = "<>\n [].;,";
 
-    protected static function isSpecial($c)
+    protected static function isSpecial($c): bool
     {
-        return \str_contains(self::SPECIAL_CHARS, $c);
+        return \str_contains(self::SPECIAL_CHARS, (string) $c);
     }
 
-    protected static function matchWordIndexes($string, $word)
+    protected static function matchWordIndexes($string, $word): array
     {
         $result = [];
-        $length = \strlen($word);
-        $stringLength = \strlen($string);
-        $pos = \stripos($string, $word, 0);
+        $length = \strlen((string) $word);
+        $stringLength = \strlen((string) $string);
+        $pos = \stripos($string, (string) $word, 0);
         while ($pos !== false) {
             $prev = ($pos === 0) ? ' ' : $string[$pos - 1];
             $last = ($pos + $length) < $stringLength ? $string[$pos + $length] : ' ';
@@ -43,7 +43,7 @@ class LanguageCensor
                 $result[] = $pos;
             }
 
-            $pos = \stripos($string, $word, $pos + $length);
+            $pos = \stripos($string, (string) $word, $pos + $length);
         }
 
         return $result;
@@ -51,17 +51,13 @@ class LanguageCensor
 
     /**
      * Censor a text.
-     *
-     * @param $source
-     *
-     * @return mixed
      */
     public static function censor($source)
     {
         foreach (\config('censor.redact', []) as $word) {
             $result = '';
-            $length = \strlen($source);
-            $wordLength = \strlen($word);
+            $length = \strlen((string) $source);
+            $wordLength = \strlen((string) $word);
             \assert($wordLength > 0);
             $indexes = self::matchWordIndexes($source, $word);
             $ignore = 0;

@@ -24,11 +24,8 @@ class PlaylistTorrentController extends Controller
 {
     /**
      * Attach A Torrent To A Playlist.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = \auth()->user();
         $playlist = Playlist::findOrFail($request->input('playlist_id'));
@@ -45,26 +42,22 @@ class PlaylistTorrentController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('playlists.show', ['id' => $playlist->id])
+            return \to_route('playlists.show', ['id' => $playlist->id])
                 ->withErrors($v->errors());
         }
 
         $playlistTorrent->save();
 
-        return \redirect()->route('playlists.show', ['id' => $playlist->id])
-            ->withSuccess('Torrent Has Successfully Been Attached To Your Playlist.');
+        return \to_route('playlists.show', ['id' => $playlist->id])
+            ->withSuccess(\trans('playlist.attached-success'));
     }
 
     /**
      * Detach A Torrent From A Playlist.
      *
-     * @param int $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $user = \auth()->user();
         $playlistTorrent = PlaylistTorrent::findOrFail($id);
@@ -72,7 +65,7 @@ class PlaylistTorrentController extends Controller
         \abort_unless($user->group->is_modo || $user->id === $playlistTorrent->playlist->user_id, 403);
         $playlistTorrent->delete();
 
-        return \redirect()->route('playlists.show', ['id' => $playlistTorrent->playlist->id])
-            ->withSuccess('Torrent Has Successfully Been Detached From Your Playlist.');
+        return \to_route('playlists.show', ['id' => $playlistTorrent->playlist->id])
+            ->withSuccess(\trans('playlist.detached-success'));
     }
 }

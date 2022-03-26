@@ -24,10 +24,8 @@ class SeedboxController extends Controller
 {
     /**
      * Get A Users Registered Seedboxes.
-     *
-     * @param \App\Models\User $username
      */
-    public function index(Request $request, $username): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function index(Request $request, string $username): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $user = User::where('username', '=', $username)->firstOrFail();
 
@@ -40,11 +38,8 @@ class SeedboxController extends Controller
 
     /**
      * Store A Seedbox.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function store(Request $request)
+    protected function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
 
@@ -59,26 +54,22 @@ class SeedboxController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('seedboxes.index', ['username' => $user->username])
+            return \to_route('seedboxes.index', ['username' => $user->username])
                 ->withErrors($v->errors());
         }
 
         $seedbox->save();
 
-        return \redirect()->route('seedboxes.index', ['username' => $user->username])
-            ->withSuccess('Seedbox Has Been Successfully Added!');
+        return \to_route('seedboxes.index', ['username' => $user->username])
+            ->withSuccess(\trans('user.seedbox-added-success'));
     }
 
     /**
      * Delete A Seedbox.
      *
-     * @param \App\Models\Seedbox $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function destroy(Request $request, $id)
+    protected function destroy(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         $seedbox = Seedbox::findOrFail($id);
@@ -87,7 +78,7 @@ class SeedboxController extends Controller
 
         $seedbox->delete();
 
-        return \redirect()->route('seedboxes.index', ['username' => $user->username])
-            ->withSuccess('Seedbox Has Been Successfully Deleted');
+        return \to_route('seedboxes.index', ['username' => $user->username])
+            ->withSuccess(\trans('user.seedbox-deleted-success'));
     }
 }

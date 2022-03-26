@@ -29,14 +29,10 @@ class AuthServiceProvider extends ServiceProvider
 
     /**
      * Register any authentication / authorization services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->registerPolicies();
-        Auth::provider('cache-user', function () {
-            return resolve(CacheUserProvider::class);
-        });
+        Auth::provider('cache-user', fn () => resolve(CacheUserProvider::class));
     }
 }

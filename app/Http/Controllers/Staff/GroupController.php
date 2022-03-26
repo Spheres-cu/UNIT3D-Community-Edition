@@ -51,11 +51,8 @@ class GroupController extends Controller
 
     /**
      * Store A New Group.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         \abort_unless($user->group->is_admin, 403);
@@ -65,6 +62,7 @@ class GroupController extends Controller
         $group->slug = Str::slug($request->input('name'));
         $group->position = $request->input('position');
         $group->level = $request->input('level');
+        $group->download_slots = $request->input('download_slots');
         $group->color = $request->input('color');
         $group->icon = $request->input('icon');
         $group->effect = $request->input('effect');
@@ -89,12 +87,12 @@ class GroupController extends Controller
         ]);
 
         if (! $request->user()->group->is_owner && $request->input('is_owner') == 1) {
-            return \redirect()->route('staff.groups.index')
+            return \to_route('staff.groups.index')
                 ->withErrors('You are not permitted to create a group with owner permissions!');
         }
 
         if ($v->fails()) {
-            return \redirect()->route('staff.groups.index')
+            return \to_route('staff.groups.index')
                 ->withErrors($v->errors());
         }
 
@@ -110,16 +108,14 @@ class GroupController extends Controller
             $permission->save();
         }
 
-        return \redirect()->route('staff.groups.index')
+        return \to_route('staff.groups.index')
             ->withSuccess('Group Was Created Successfully!');
     }
 
     /**
      * Group Edit Form.
-     *
-     * @param \App\Models\Group $id
      */
-    public function edit(Request $request, $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function edit(Request $request, int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $user = $request->user();
         \abort_unless($user->group->is_admin, 403);
@@ -131,12 +127,8 @@ class GroupController extends Controller
 
     /**
      * Edit A Group.
-     *
-     * @param \App\Models\Group $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         \abort_unless($user->group->is_admin, 403);
@@ -147,6 +139,7 @@ class GroupController extends Controller
         $group->slug = Str::slug($request->input('name'));
         $group->position = $request->input('position');
         $group->level = $request->input('level');
+        $group->download_slots = $request->input('download_slots');
         $group->color = $request->input('color');
         $group->icon = $request->input('icon');
         $group->effect = $request->input('effect');
@@ -171,18 +164,18 @@ class GroupController extends Controller
         ]);
 
         if (! $request->user()->group->is_owner && $request->input('is_owner') == 1) {
-            return \redirect()->route('staff.groups.index')
+            return \to_route('staff.groups.index')
                 ->withErrors('You are not permitted to give a group owner permissions!');
         }
 
         if ($v->fails()) {
-            return \redirect()->route('staff.groups.index')
+            return \to_route('staff.groups.index')
                 ->withErrors($v->errors());
         }
 
         $group->save();
 
-        return \redirect()->route('staff.groups.index')
+        return \to_route('staff.groups.index')
             ->withSuccess('Group Was Updated Successfully!');
     }
 }

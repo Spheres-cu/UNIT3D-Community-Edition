@@ -16,7 +16,9 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
 use App\Models\Follow;
+use App\Models\FreeleechToken;
 use App\Models\Group;
+use App\Models\History;
 use App\Models\Internal;
 use App\Models\Invite;
 use App\Models\Like;
@@ -57,10 +59,8 @@ class UserController extends Controller
 
     /**
      * User Edit Form.
-     *
-     * @param \App\Models\User $username
      */
-    public function settings($username): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function settings(string $username): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $user = User::where('username', '=', $username)->firstOrFail();
         $groups = Group::all();
@@ -77,12 +77,8 @@ class UserController extends Controller
 
     /**
      * Edit A User.
-     *
-     * @param \App\Models\User $username
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function edit(Request $request, $username)
+    public function edit(Request $request, string $username): \Illuminate\Http\RedirectResponse
     {
         $user = User::with('group')->where('username', '=', $username)->firstOrFail();
         $staff = $request->user();
@@ -112,7 +108,7 @@ class UserController extends Controller
         // Hard coded until group change.
 
         if ($target >= $sender || ($sender == 0 && ($sendto === 6 || $sendto === 4 || $sendto === 10)) || ($sender == 1 && ($sendto === 4 || $sendto === 10))) {
-            return \redirect()->route('users.show', ['username' => $user->username])
+            return \to_route('users.show', ['username' => $user->username])
                 ->withErrors('You Are Not Authorized To Perform This Action!');
         }
 
@@ -126,18 +122,14 @@ class UserController extends Controller
         $user->internal_id = (int) $request->input('internal_id');
         $user->save();
 
-        return \redirect()->route('users.show', ['username' => $user->username])
+        return \to_route('users.show', ['username' => $user->username])
             ->withSuccess('Account Was Updated Successfully!');
     }
 
     /**
      * Edit A Users Permissions.
-     *
-     * @param \App\Models\User $username
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function permissions(Request $request, $username)
+    public function permissions(Request $request, string $username): \Illuminate\Http\RedirectResponse
     {
         $user = User::where('username', '=', $username)->firstOrFail();
         $user->can_upload = $request->input('can_upload');
@@ -148,35 +140,27 @@ class UserController extends Controller
         $user->can_chat = $request->input('can_chat');
         $user->save();
 
-        return \redirect()->route('users.show', ['username' => $user->username])
+        return \to_route('users.show', ['username' => $user->username])
             ->withSuccess('Account Permissions Successfully Edited');
     }
 
     /**
      * Edit A Users Password.
-     *
-     * @param \App\Models\User $username
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function password(Request $request, $username)
+    protected function password(Request $request, string $username): \Illuminate\Http\RedirectResponse
     {
         $user = User::where('username', '=', $username)->firstOrFail();
         $user->password = Hash::make($request->input('new_password'));
         $user->save();
 
-        return \redirect()->route('users.show', ['username' => $user->username])
+        return \to_route('users.show', ['username' => $user->username])
             ->withSuccess('Account Password Was Updated Successfully!');
     }
 
     /**
      * Delete A User.
-     *
-     * @param \App\Models\User $username
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function destroy($username)
+    protected function destroy(string $username): \Illuminate\Http\RedirectResponse
     {
         $user = User::where('username', '=', $username)->firstOrFail();
 
@@ -266,23 +250,29 @@ class UserController extends Controller
             $peer->delete();
         }
 
+        // Remove all History records for user
+        foreach (History::where('user_id', '=', $user->id)->get() as $history) {
+            $history->delete();
+        }
+
+        // Removes all FL Tokens for user
+        foreach (FreeleechToken::where('user_id', '=', $user->id)->get() as $token) {
+            $token->delete();
+        }
+
         if ($user->delete()) {
-            return \redirect()->route('staff.dashboard.index')
+            return \to_route('staff.dashboard.index')
                 ->withSuccess('Account Has Been Removed');
         }
 
-        return \redirect()->route('staff.dashboard.index')
+        return \to_route('staff.dashboard.index')
             ->withErrors('Something Went Wrong!');
     }
 
     /**
      * Manually warn a user.
-     *
-     * @param \App\Models\User $username
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    protected function warnUser(Request $request, $username)
+    protected function warnUser(Request $request, string $username): \Illuminate\Http\RedirectResponse
     {
         $user = User::where('username', '=', $username)->firstOrFail();
         $carbon = new Carbon();
@@ -303,7 +293,7 @@ class UserController extends Controller
         $pm->message = 'You have received a [b]warning[/b]. Reason: '.$request->input('message');
         $pm->save();
 
-        return \redirect()->route('users.show', ['username' => $user->username])
+        return \to_route('users.show', ['username' => $user->username])
             ->withSuccess('Warning issued successfully!');
     }
 }

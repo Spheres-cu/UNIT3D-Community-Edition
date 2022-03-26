@@ -44,7 +44,7 @@ class SystemBot
     /**
      * SystemBot Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
         $bot = Bot::where('slug', '=', 'systembot')->firstOrFail();
         $this->bot = $bot;
@@ -52,17 +52,13 @@ class SystemBot
 
     /**
      * Replace Vars.
-     *
-     * @param $output
-     *
-     * @return mixed
      */
-    public function replaceVars($output)
+    public function replaceVars($output): array|string
     {
         $output = \str_replace(['{me}', '{command}'], [$this->bot->name, $this->bot->command], $output);
-        if (\str_contains($output, '{bots}')) {
+        if (\str_contains((string) $output, '{bots}')) {
             $botHelp = '';
-            $bots = Bot::where('active', '=', 1)->where('id', '!=', $this->bot->id)->orderBy('position', 'asc')->get();
+            $bots = Bot::where('active', '=', 1)->where('id', '!=', $this->bot->id)->oldest('position')->get();
             foreach ($bots as $bot) {
                 $botHelp .= '( ! | / | @)'.$bot->command.' help triggers help file for '.$bot->name."\n";
             }
@@ -76,21 +72,15 @@ class SystemBot
     /**
      * Get Help.
      */
-    public function getHelp()
+    public function getHelp(): array|string
     {
         return $this->replaceVars($this->bot->help);
     }
 
     /**
      * Send Gift.
-     *
-     * @param string $receiver
-     * @param int    $amount
-     * @param string $note
-     *
-     * @return string
      */
-    public function putGift($receiver = '', $amount = 0, $note = '')
+    public function putGift($receiver = '', $amount = 0, $note = ''): string
     {
         $output = \implode(' ', $note);
         $v = \validator(['receiver' => $receiver, 'amount'=> $amount, 'note'=> $output], [
@@ -141,14 +131,8 @@ class SystemBot
 
     /**
      * Process Message.
-     *
-     * @param        $type
-     * @param string $message
-     * @param int    $targeted
-     *
-     * @return bool
      */
-    public function process($type, User $user, $message = '', $targeted = 0)
+    public function process($type, User $user, $message = '', $targeted = 0): \Illuminate\Http\Response|bool|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory
     {
         $this->target = $user;
         $x = $type == 'message' ? 0 : 1;
@@ -162,7 +146,7 @@ class SystemBot
             $log = 'All '.$this->bot->name.' commands must be a private message or begin with /'.$this->bot->command.' or !'.$this->bot->command.'. Need help? Type /'.$this->bot->command.' help and you shall be helped.';
         }
 
-        $command = @\explode(' ', $message);
+        $command = @\explode(' ', (string) $message);
         if (\array_key_exists($x, $command)) {
             if ($command[$x] === 'gift' && \array_key_exists($y, $command) && \array_key_exists($z, $command) && \array_key_exists($z + 1, $command)) {
                 $clone = $command;
@@ -189,7 +173,7 @@ class SystemBot
     /**
      * Output Message.
      */
-    public function pm()
+    public function pm(): \Illuminate\Http\Response|bool|\Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\Routing\ResponseFactory
     {
         $type = $this->type;
         $target = $this->target;

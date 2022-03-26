@@ -40,11 +40,8 @@ class ResolutionController extends Controller
 
     /**
      * Store A New Resolution.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $resolution = new Resolution();
         $resolution->name = $request->input('name');
@@ -58,22 +55,20 @@ class ResolutionController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.resolutions.index')
+            return \to_route('staff.resolutions.index')
                 ->withErrors($v->errors());
         }
 
         $resolution->save();
 
-        return \redirect()->route('staff.resolutions.index')
+        return \to_route('staff.resolutions.index')
                 ->withSuccess('Resolution Successfully Added');
     }
 
     /**
      * Resolution Edit Form.
-     *
-     * @param $id
      */
-    public function edit($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function edit(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $resolution = Resolution::findOrFail($id);
 
@@ -82,12 +77,8 @@ class ResolutionController extends Controller
 
     /**
      * Edit A Resolution.
-     *
-     * @param $id
-     *
-     * @return Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $resolution = Resolution::findOrFail($id);
         $resolution->name = $request->input('name');
@@ -101,31 +92,27 @@ class ResolutionController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.resolutions.index')
+            return \to_route('staff.resolutions.index')
                 ->withErrors($v->errors());
         }
 
         $resolution->save();
 
-        return \redirect()->route('staff.resolutions.index')
+        return \to_route('staff.resolutions.index')
                 ->withSuccess('Resolution Successfully Modified');
     }
 
     /**
      * Delete A Resolution.
      *
-     * @param $id
-     *
      * @throws \Exception
-     *
-     * @return Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $resolution = Resolution::findOrFail($id);
         $resolution->delete();
 
-        return \redirect()->route('staff.resolutions.index')
+        return \to_route('staff.resolutions.index')
             ->withSuccess('Resolution Successfully Deleted');
     }
 }

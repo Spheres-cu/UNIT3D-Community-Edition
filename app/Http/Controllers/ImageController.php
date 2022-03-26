@@ -24,10 +24,8 @@ class ImageController extends Controller
 {
     /**
      * Show Image Create Form.
-     *
-     * @param \App\Models\Album $id
      */
-    public function create($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function create(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $album = Album::find($id);
 
@@ -36,11 +34,8 @@ class ImageController extends Controller
 
     /**
      * Store A New Image.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $image = new Image();
         $image->user_id = $request->user()->id;
@@ -65,31 +60,27 @@ class ImageController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('images.create', ['id' => $request->input('album_id')])
+            return \to_route('images.create', ['id' => $request->input('album_id')])
                 ->withErrors($v->errors());
         }
 
         $image->save();
 
-        return \redirect()->route('albums.show', ['id' => $request->input('album_id')])
-            ->withSuccess('Your image has successfully published!');
+        return \to_route('albums.show', ['id' => $request->input('album_id')])
+            ->withSuccess(\trans('gallery.image-published-success'));
     }
 
     /**
      * Download A Image.
-     *
-     * @param \App\Models\Image $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function download($id)
+    public function download(int $id): \Illuminate\Http\RedirectResponse|\Symfony\Component\HttpFoundation\BinaryFileResponse
     {
         $image = Image::findOrFail($id);
         $filename = $image->image;
 
         if (! \file_exists(\getcwd().'/files/img/'.$filename)) {
-            return \redirect()->route('show_album', ['id' => $image->album_id])
-                ->withErrors('Image File Not Found! Please Report This To Staff!');
+            return \to_route('show_album', ['id' => $image->album_id])
+                ->withErrors(\trans('gallery.image-album-not-found'));
         }
 
         $image->downloads++;
@@ -101,13 +92,9 @@ class ImageController extends Controller
     /**
      * Delete A Image.
      *
-     * @param \App\Models\Image $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         $image = Image::findOrFail($id);
@@ -115,7 +102,7 @@ class ImageController extends Controller
         \abort_unless($user->group->is_modo || $user->id === $image->user_id, 403);
         $image->delete();
 
-        return \redirect()->route('albums.show', ['id' => $image->album_id])
-            ->withSuccess('Image has successfully been deleted');
+        return \to_route('albums.show', ['id' => $image->album_id])
+            ->withSuccess(\trans('gallery.image-album-deleted-success'));
     }
 }

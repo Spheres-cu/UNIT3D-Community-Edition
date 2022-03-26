@@ -38,14 +38,12 @@ class ProcessMovieJob implements ShouldQueue
 
     /**
      * ProcessMovieJob constructor.
-     *
-     * @param $movie
      */
     public function __construct(public $movie)
     {
     }
 
-    public function handle()
+    public function handle(): void
     {
         $tmdb = new TMDB();
 
@@ -81,7 +79,7 @@ class ProcessMovieJob implements ShouldQueue
                 $belongsToCollectionArray = [
                     'name'      => $belongsToCollection['name'] ?? null,
                     'name_sort' => $titleSort,
-                    'parts'     => \count($belongsToCollection['parts']),
+                    'parts'     => is_countable($belongsToCollection['parts']) ? \count($belongsToCollection['parts']) : 0,
                     'overview'  => $belongsToCollection['overview'] ?? null,
                     'poster'    => $tmdb->image('poster', $belongsToCollection),
                     'backdrop'  => $tmdb->image('backdrop', $belongsToCollection),

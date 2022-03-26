@@ -27,18 +27,14 @@ class ReportController extends Controller
     /**
      * ReportController Constructor.
      */
-    public function __construct(private Report $report)
+    public function __construct(private readonly Report $report)
     {
     }
 
     /**
      * Create A Request Report.
-     *
-     * @param \App\Models\TorrentRequest $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function request(Request $request, $id)
+    public function request(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $torrentRequest = TorrentRequest::findOrFail($id);
         $reportedBy = $request->user();
@@ -49,7 +45,7 @@ class ReportController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('request', ['id' => $id])
+            return \to_route('request', ['id' => $id])
                 ->withErrors($v->errors());
         }
 
@@ -64,18 +60,14 @@ class ReportController extends Controller
             'solved'        => 0,
         ]);
 
-        return \redirect()->route('request', ['id' => $id])
-            ->withSuccess('Your report has been successfully sent');
+        return \to_route('request', ['id' => $id])
+            ->withSuccess(\trans('user.report-sent'));
     }
 
     /**
      * Create A Torrent Report.
-     *
-     * @param \App\Models\Torrent $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function torrent(Request $request, $id)
+    public function torrent(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $torrent = Torrent::findOrFail($id);
         $reportedBy = $request->user();
@@ -86,7 +78,7 @@ class ReportController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('torrent', ['id' => $id])
+            return \to_route('torrent', ['id' => $id])
                 ->withErrors($v->errors());
         }
 
@@ -101,18 +93,14 @@ class ReportController extends Controller
             'solved'        => 0,
         ]);
 
-        return \redirect()->route('torrent', ['id' => $id])
-            ->withSuccess('Your report has been successfully sent');
+        return \to_route('torrent', ['id' => $id])
+            ->withSuccess(\trans('user.report-sent'));
     }
 
     /**
      * Create A User Report.
-     *
-     * @param \App\Models\User $username
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function user(Request $request, $username)
+    public function user(Request $request, string $username): \Illuminate\Http\RedirectResponse
     {
         $reportedUser = User::where('username', '=', $username)->firstOrFail();
         $reportedBy = $request->user();
@@ -122,7 +110,7 @@ class ReportController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('users.show', ['username' => $username])
+            return \to_route('users.show', ['username' => $username])
                 ->withErrors($v->errors());
         }
 
@@ -137,7 +125,7 @@ class ReportController extends Controller
             'solved'        => 0,
         ]);
 
-        return \redirect()->route('users.show', ['username' => $username])
-            ->withSuccess('Your report has been successfully sent');
+        return \to_route('users.show', ['username' => $username])
+            ->withSuccess(\trans('user.report-sent'));
     }
 }

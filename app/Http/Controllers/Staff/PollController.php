@@ -27,7 +27,7 @@ class PollController extends Controller
     /**
      * PollController Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
     }
 
@@ -43,10 +43,8 @@ class PollController extends Controller
 
     /**
      * Show A Poll.
-     *
-     * @param \App\Models\Poll $id
      */
-    public function show($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function show(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $poll = Poll::where('id', '=', $id)->firstOrFail();
 
@@ -63,11 +61,8 @@ class PollController extends Controller
 
     /**
      * Store A New Poll.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(StorePoll $storePoll)
+    public function store(StorePoll $storePoll): \Illuminate\Http\RedirectResponse
     {
         $user = $storePoll->user();
 
@@ -82,16 +77,14 @@ class PollController extends Controller
             \sprintf('A new poll has been created [url=%s]%s[/url] vote on it now! :slight_smile:', $pollUrl, $poll->title)
         );
 
-        return \redirect()->route('staff.polls.index')
+        return \to_route('staff.polls.index')
             ->withSuccess('Your poll has been created.');
     }
 
     /**
      * Poll Edit Form.
-     *
-     * @param \App\Models\Poll $id
      */
-    public function edit($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function edit(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $poll = Poll::findOrFail($id);
 
@@ -101,13 +94,9 @@ class PollController extends Controller
     /**
      * Update A New Poll.
      *
-     * @param $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(StorePoll $storePoll, $id)
+    public function update(StorePoll $storePoll, int $id): \Illuminate\Http\RedirectResponse
     {
         $poll = Poll::findOrFail($id);
 
@@ -151,25 +140,23 @@ class PollController extends Controller
 
         $poll->save();
 
-        return \redirect()->route('staff.polls.index')
+        return \to_route('staff.polls.index')
             ->withSuccess('Your poll has been edited.');
     }
 
     /**
      * Delete A Poll.
      *
-     * @param \App\Models\Poll $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $poll = Poll::findOrFail($id);
         $poll->delete();
 
-        return \redirect()->route('staff.polls.index')
+        Option::where('poll_id', '=', $id)->delete();
+
+        return \to_route('staff.polls.index')
             ->withSuccess('Poll has successfully been deleted');
     }
 }

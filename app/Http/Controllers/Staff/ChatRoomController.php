@@ -27,7 +27,7 @@ class ChatRoomController extends Controller
     /**
      * ChatController Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
     }
 
@@ -45,11 +45,8 @@ class ChatRoomController extends Controller
 
     /**
      * Store A New Chatroom.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $chatroom = new Chatroom();
         $chatroom->name = $request->input('name');
@@ -59,24 +56,20 @@ class ChatRoomController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.rooms.index')
+            return \to_route('staff.rooms.index')
                 ->withErrors($v->errors());
         }
 
         $chatroom->save();
 
-        return \redirect()->route('staff.rooms.index')
+        return \to_route('staff.rooms.index')
             ->withSuccess('Chatroom Successfully Added');
     }
 
     /**
      * Update A Chatroom.
-     *
-     * @param \App\Models\Chatroom $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $chatroom = Chatroom::findOrFail($id);
         $chatroom->name = $request->input('name');
@@ -86,26 +79,22 @@ class ChatRoomController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.rooms.index')
+            return \to_route('staff.rooms.index')
                 ->withErrors($v->errors());
         }
 
         $chatroom->save();
 
-        return \redirect()->route('staff.rooms.index')
+        return \to_route('staff.rooms.index')
             ->withSuccess('Chatroom Successfully Modified');
     }
 
     /**
      * Delete A Chatroom.
      *
-     * @param \App\Models\Chatroom $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): \Illuminate\Http\RedirectResponse
     {
         $chatroom = Chatroom::findOrFail($id);
         $users = User::where('chatroom_id', '=', $id)->get();
@@ -117,7 +106,7 @@ class ChatRoomController extends Controller
 
         $chatroom->delete();
 
-        return \redirect()->route('staff.rooms.index')
+        return \to_route('staff.rooms.index')
             ->withSuccess('Chatroom Successfully Deleted');
     }
 }

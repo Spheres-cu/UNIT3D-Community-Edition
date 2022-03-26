@@ -15,12 +15,9 @@ namespace App\Services\Tmdb\Client;
 
 class Network
 {
-    /**
-     * @var \GuzzleHttp\Client|mixed
-     */
-    public $client;
+    public \GuzzleHttp\Client $client;
 
-    public const API_BASE_URI = 'https://api.TheMovieDB.org/3';
+    public final const API_BASE_URI = 'https://api.TheMovieDB.org/3';
 
     public $data;
 
@@ -73,7 +70,7 @@ class Network
         return $this->data['id'];
     }
 
-    public function get_foto()
+    public function get_foto(): string
     {
         return 'https://image.tmdb.org/t/p/original'.$this->data['profile_path'];
     }

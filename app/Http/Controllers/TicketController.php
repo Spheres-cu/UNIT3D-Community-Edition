@@ -25,7 +25,7 @@ class TicketController extends Controller
     /**
      * Display a listing of the resource.
      */
-    final public function index(Request $request): \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\Illuminate\Contracts\Foundation\Application
+    final public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         return \view('ticket.index');
     }
@@ -33,7 +33,7 @@ class TicketController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    final public function create(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\Illuminate\Contracts\Foundation\Application
+    final public function create(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $categories = TicketCategory::all()->sortBy('position');
         $priorities = TicketPriority::all()->sortBy('position');
@@ -67,21 +67,21 @@ class TicketController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('tickets.create')
+            return \to_route('tickets.create')
                 ->withInput()
                 ->withErrors($v->errors());
         }
 
         $ticket->save();
 
-        return \redirect()->route('tickets.show', ['id' => $ticket->id])
-            ->withSuccess('Your Helpdesk Ticket Was Created Successfully!');
+        return \to_route('tickets.show', ['id' => $ticket->id])
+            ->withSuccess(\trans('ticket.created-success'));
     }
 
     /**
      * Display the specified resource.
      */
-    final public function show(Request $request, int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\Illuminate\Contracts\Foundation\Application
+    final public function show(Request $request, int $id): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         $user = $request->user();
         $ticket = Ticket::with(['comments'])->findOrFail($id);
@@ -101,14 +101,6 @@ class TicketController extends Controller
             'user'   => $user,
             'ticket' => $ticket,
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    final public function edit(int $id): \Illuminate\Http\Response
-    {
-        //
     }
 
     /**
@@ -134,15 +126,15 @@ class TicketController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('tickets.create')
+            return \to_route('tickets.create')
                 ->withInput()
                 ->withErrors($v->errors());
         }
 
         $ticket->save();
 
-        return \redirect()->route('tickets.show', ['id' => $ticket->id])
-            ->withSuccess('Your Helpdesk Ticket Was Updated Successfully!');
+        return \to_route('tickets.show', ['id' => $ticket->id])
+            ->withSuccess(\trans('ticket.updated-success'));
     }
 
     /**
@@ -158,8 +150,8 @@ class TicketController extends Controller
         TicketAttachment::where('ticket_id', '=', $id)->delete();
         $ticket->delete();
 
-        return \redirect()->route('tickets.index')
-            ->withSuccess('Your Helpdesk Ticket Was Deleted Successfully!');
+        return \to_route('tickets.index')
+            ->withSuccess(\trans('ticket.deleted-success'));
     }
 
     final public function assign(Request $request, int $id): \Illuminate\Http\RedirectResponse
@@ -176,14 +168,14 @@ class TicketController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('tickets.show', ['id' => $ticket->id])
+            return \to_route('tickets.show', ['id' => $ticket->id])
                 ->withErrors($v->errors());
         }
 
         $ticket->save();
 
-        return \redirect()->route('tickets.show', ['id' => $ticket->id])
-            ->withSuccess('Helpdesk Ticket Was Assigned Successfully!');
+        return \to_route('tickets.show', ['id' => $ticket->id])
+            ->withSuccess(\trans('ticket.assigned-success'));
     }
 
     final public function unassign(Request $request, int $id): \Illuminate\Http\RedirectResponse
@@ -195,8 +187,8 @@ class TicketController extends Controller
         $ticket->staff_id = null;
         $ticket->save();
 
-        return \redirect()->route('tickets.show', ['id' => $ticket->id])
-            ->withSuccess('Helpdesk Ticket Was Unassigned Successfully!');
+        return \to_route('tickets.show', ['id' => $ticket->id])
+            ->withSuccess(\trans('ticket.unassigned-success'));
     }
 
     final public function close(Request $request, int $id): \Illuminate\Http\RedirectResponse
@@ -208,7 +200,7 @@ class TicketController extends Controller
         $ticket->closed_at = \now();
         $ticket->save();
 
-        return \redirect()->route('tickets.show', ['id' => $ticket->id])
-            ->withSuccess('Helpdesk Ticket Was Closed Successfully!');
+        return \to_route('tickets.show', ['id' => $ticket->id])
+            ->withSuccess(\trans('ticket.closed-success'));
     }
 }

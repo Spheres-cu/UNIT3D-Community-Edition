@@ -28,7 +28,7 @@ class AlbumController extends Controller
     /**
      * Display All Albums.
      */
-    public function index(): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function index(): \Illuminate\Contracts\View\View
     {
         $albums = Album::withCount('images')->get();
 
@@ -45,18 +45,15 @@ class AlbumController extends Controller
 
     /**
      * Store A New Album.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
         $imdb = Str::startsWith($request->input('imdb'), 'tt') ? $request->input('imdb') : 'tt'.$request->input('imdb');
         $meta = Movie::where('imdb_id', '=', $imdb)->first();
 
-        if ($meta === null || ! $meta) {
-            return \redirect()->route('albums.create')
-                ->withErrors('Meta Data Not Found. Gallery System Is Being Refactored');
+        if (! $meta) {
+            return \to_route('albums.create')
+                ->withErrors(\trans('gallery.no-meta'));
         }
 
         $album = new Album();
@@ -80,23 +77,21 @@ class AlbumController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('albums.create')
+            return \to_route('albums.create')
                 ->withInput()
                 ->withErrors($v->errors());
         }
 
         $album->save();
 
-        return \redirect()->route('albums.show', ['id' => $album->id])
-            ->withSuccess('Your album has successfully published!');
+        return \to_route('albums.show', ['id' => $album->id])
+            ->withSuccess(\trans('gallery.success'));
     }
 
     /**
      * Show A Album.
-     *
-     * @param \App\Models\Album $id
      */
-    public function show($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function show(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $album = Album::with('images')->find($id);
         $albums = Album::with('images')->get();
@@ -107,13 +102,9 @@ class AlbumController extends Controller
     /**
      * Delete A Album.
      *
-     * @param \App\Models\Album $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $user = $request->user();
         $album = Album::findOrFail($id);
@@ -121,7 +112,7 @@ class AlbumController extends Controller
         \abort_unless($user->group->is_modo || ($user->id === $album->user_id && Carbon::now()->lt($album->created_at->addDay())), 403);
         $album->delete();
 
-        return \redirect()->route('albums.index')
-            ->withSuccess('Album has successfully been deleted');
+        return \to_route('albums.index')
+            ->withSuccess(\trans('gallery.deleted'));
     }
 }

@@ -178,8 +178,6 @@ return [
         Assada\Achievements\AchievementsServiceProvider::class,
         Spatie\CookieConsent\CookieConsentServiceProvider::class,
         Hootlex\Moderation\ModerationServiceProvider::class,
-        Arcanedev\LogViewer\LogViewerServiceProvider::class,
-        Kyslik\ColumnSortable\ColumnSortableServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
 
         /*
@@ -188,7 +186,6 @@ return [
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
         App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EmailBlacklistServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 

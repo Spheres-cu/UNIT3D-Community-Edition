@@ -32,7 +32,7 @@ class ChatRepository
     /**
      * ChatRepository Constructor.
      */
-    public function __construct(private Message $message, private Chatroom $chatroom, private ChatStatus $chatStatus, private User $user, private Bot $bot, private UserEcho $userEcho, private UserAudible $userAudible)
+    public function __construct(private readonly Message $message, private readonly Chatroom $chatroom, private readonly ChatStatus $chatStatus, private readonly User $user, private readonly Bot $bot, private readonly UserEcho $userEcho, private readonly UserAudible $userAudible)
     {
     }
 
@@ -46,7 +46,7 @@ class ChatRepository
         return $this->bot->all();
     }
 
-    public function echoes($userId)
+    public function echoes($userId): \Illuminate\Support\Collection
     {
         return $this->userEcho->with([
             'bot',
@@ -56,7 +56,7 @@ class ChatRepository
         ])->where(function ($query) use ($userId) {
             $query->where('user_id', '=', $userId);
         })
-            ->orderBy('id', 'asc')
+            ->oldest('id')
             ->get();
     }
 
@@ -84,7 +84,7 @@ class ChatRepository
         return $this->chatroom->findOrFail($id);
     }
 
-    public function ping($type, $id)
+    public function ping($type, $id): bool
     {
         if ($type == 'room') {
             foreach (Chatroom::where('id', '>', 0)->get() as $room) {
@@ -118,7 +118,7 @@ class ChatRepository
         return $message;
     }
 
-    public function botMessage($botId, $roomId, $message, $receiver = null)
+    public function botMessage($botId, $roomId, $message, $receiver = null): void
     {
         $user = $this->user->find($receiver);
         if ($user->censor) {
@@ -195,7 +195,7 @@ class ChatRepository
         }
     }
 
-    public function messages($roomId)
+    public function messages($roomId): \Illuminate\Support\Collection
     {
         return $this->message->with([
             'bot',
@@ -207,12 +207,12 @@ class ChatRepository
         ])->where(function ($query) use ($roomId) {
             $query->where('chatroom_id', '=', $roomId);
         })
-            ->orderBy('id', 'desc')
+            ->latest('id')
             ->limit(\config('chat.message_limit'))
             ->get();
     }
 
-    public function botMessages($senderId, $botId)
+    public function botMessages($senderId, $botId): \Illuminate\Support\Collection
     {
         $systemUserId = User::where('username', 'System')->firstOrFail()->id;
 
@@ -226,12 +226,12 @@ class ChatRepository
         ])->where(function ($query) use ($senderId, $systemUserId) {
             $query->whereRaw('(user_id = ? and receiver_id = ?)', [$senderId, $systemUserId])->orWhereRaw('(user_id = ? and receiver_id = ?)', [$systemUserId, $senderId]);
         })->where('bot_id', '=', $botId)
-            ->orderBy('id', 'desc')
+            ->latest('id')
             ->limit(\config('chat.message_limit'))
             ->get();
     }
 
-    public function privateMessages($senderId, $targetId)
+    public function privateMessages($senderId, $targetId): \Illuminate\Support\Collection
     {
         return $this->message->with([
             'bot',
@@ -243,12 +243,12 @@ class ChatRepository
         ])->where(function ($query) use ($senderId, $targetId) {
             $query->whereRaw('(user_id = ? and receiver_id = ?)', [$senderId, $targetId])->orWhereRaw('(user_id = ? and receiver_id = ?)', [$targetId, $senderId]);
         })
-            ->orderBy('id', 'desc')
+            ->latest('id')
             ->limit(\config('chat.message_limit'))
             ->get();
     }
 
-    public function checkMessageLimits($roomId)
+    public function checkMessageLimits($roomId): void
     {
         $messages = $this->messages($roomId)->toArray();
         $limit = \config('chat.message_limit');
@@ -269,7 +269,7 @@ class ChatRepository
         }
     }
 
-    public function systemMessage($message, $bot = null)
+    public function systemMessage($message, $bot = null): static
     {
         $systemUserId = User::where('username', 'System')->first()->id;
 
@@ -314,6 +314,7 @@ class ChatRepository
 
     public function status($user)
     {
+        $status = null;
         if ($user instanceof User) {
             $status = $this->chatStatus->where('user_id', '=', $user->id)->first();
         }
@@ -330,15 +331,10 @@ class ChatRepository
         return $this->chatStatus->findOrFail($id);
     }
 
-    /**
-     * @param $message
-     *
-     * @return string
-     */
-    protected function censorMessage($message)
+    protected function censorMessage($message): string
     {
         foreach (\config('censor.redact') as $word) {
-            if (\preg_match(\sprintf('/\b%s(?=[.,]|$|\s)/mi', $word), $message)) {
+            if (\preg_match(\sprintf('/\b%s(?=[.,]|$|\s)/mi', $word), (string) $message)) {
                 $message = \str_replace($word, \sprintf("<span class='censor'>%s</span>", $word), $message);
             }
         }
@@ -354,8 +350,6 @@ class ChatRepository
 
     protected function htmlifyMessage($message)
     {
-        // Soon
-
         return $message;
     }
 }

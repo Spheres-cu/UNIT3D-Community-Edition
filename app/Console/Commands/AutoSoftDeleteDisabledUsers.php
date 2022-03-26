@@ -16,7 +16,9 @@ namespace App\Console\Commands;
 use App\Jobs\SendDeleteUserMail;
 use App\Models\Comment;
 use App\Models\Follow;
+use App\Models\FreeleechToken;
 use App\Models\Group;
+use App\Models\History;
 use App\Models\Invite;
 use App\Models\Like;
 use App\Models\Message;
@@ -54,10 +56,8 @@ class AutoSoftDeleteDisabledUsers extends Command
      * Execute the console command.
      *
      * @throws \Exception
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         if (\config('pruning.user_pruning') == true) {
             $disabledGroup = \cache()->rememberForever('disabled_group', fn () => Group::where('slug', '=', 'disabled')->pluck('id'));
@@ -164,6 +164,16 @@ class AutoSoftDeleteDisabledUsers extends Command
                 // Removes all Peers for user
                 foreach (Peer::where('user_id', '=', $user->id)->get() as $peer) {
                     $peer->delete();
+                }
+
+                // Remove all History records for user
+                foreach (History::where('user_id', '=', $user->id)->get() as $history) {
+                    $history->delete();
+                }
+
+                // Removes all FL Tokens for user
+                foreach (FreeleechToken::where('user_id', '=', $user->id)->get() as $token) {
+                    $token->delete();
                 }
 
                 $user->delete();

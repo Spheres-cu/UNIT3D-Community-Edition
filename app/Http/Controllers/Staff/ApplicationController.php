@@ -18,6 +18,7 @@ use App\Mail\DenyApplication;
 use App\Mail\InviteUser;
 use App\Models\Application;
 use App\Models\Invite;
+use App\Rules\EmailBlacklist;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -43,10 +44,8 @@ class ApplicationController extends Controller
 
     /**
      * Get A Application.
-     *
-     * @param \App\Models\Application $id
      */
-    public function show($id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+    public function show(int $id): \Illuminate\Contracts\View\Factory|\Illuminate\View\View
     {
         $application = Application::withAnyStatus()->with(['user', 'moderated', 'imageProofs', 'urlProofs'])->findOrFail($id);
 
@@ -56,13 +55,9 @@ class ApplicationController extends Controller
     /**
      * Approve A Application.
      *
-     * @param \App\Models\Application $id
-     *
      * @throws \Exception
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function approve(Request $request, $id)
+    public function approve(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $application = Application::withAnyStatus()->findOrFail($id);
 
@@ -80,7 +75,15 @@ class ApplicationController extends Controller
 
             if (\config('email-blacklist.enabled') == true) {
                 $v = \validator($request->all(), [
-                    'email'   => 'required|string|email|max:70|blacklist|unique:users|unique:invites',
+                    'email' => [
+                        'required',
+                        'string',
+                        'email',
+                        'max:70',
+                        'unique:invites',
+                        'unique:users',
+                        new EmailBlacklist(),
+                    ],
                     'approve' => 'required',
                 ]);
             } else {
@@ -91,7 +94,7 @@ class ApplicationController extends Controller
             }
 
             if ($v->fails()) {
-                return \redirect()->route('staff.applications.index')
+                return \to_route('staff.applications.index')
                     ->withErrors($v->errors());
             }
 
@@ -99,22 +102,18 @@ class ApplicationController extends Controller
             $invite->save();
             $application->markApproved();
 
-            return \redirect()->route('staff.applications.index')
+            return \to_route('staff.applications.index')
                 ->withSuccess('Application Approved');
         }
 
-        return \redirect()->route('staff.applications.index')
+        return \to_route('staff.applications.index')
                 ->withErrors('Application Already Approved');
     }
 
     /**
      * Reject A Application.
-     *
-     * @param \App\Models\Application $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function reject(Request $request, $id)
+    public function reject(Request $request, int $id): \Illuminate\Http\RedirectResponse
     {
         $application = Application::withAnyStatus()->findOrFail($id);
 
@@ -127,11 +126,11 @@ class ApplicationController extends Controller
             $application->markRejected();
             Mail::to($application->email)->send(new DenyApplication($deniedMessage));
 
-            return \redirect()->route('staff.applications.index')
+            return \to_route('staff.applications.index')
                 ->withSuccess('Application Rejected');
         }
 
-        return \redirect()->route('staff.applications.index')
+        return \to_route('staff.applications.index')
             ->withErrors('Application Already Rejected');
     }
 }

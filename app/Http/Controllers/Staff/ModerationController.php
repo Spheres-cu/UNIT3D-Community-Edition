@@ -29,7 +29,7 @@ class ModerationController extends Controller
     /**
      * ModerationController Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
     }
 
@@ -53,12 +53,8 @@ class ModerationController extends Controller
 
     /**
      * Approve A Torrent.
-     *
-     * @param \App\Models\Torrent $id
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function approve($id)
+    public function approve(int $id): \Illuminate\Http\RedirectResponse
     {
         $torrent = Torrent::withAnyStatus()->where('id', '=', $id)->first();
 
@@ -81,21 +77,18 @@ class ModerationController extends Controller
 
             TorrentHelper::approveHelper($torrent->id);
 
-            return \redirect()->route('staff.moderation.index')
+            return \to_route('staff.moderation.index')
                 ->withSuccess('Torrent Approved');
         }
 
-        return \redirect()->route('staff.moderation.index')
+        return \to_route('staff.moderation.index')
             ->withErrors('Torrent Already Approved');
     }
 
     /**
      * Postpone A Torrent.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function postpone(Request $request)
+    public function postpone(Request $request): \Illuminate\Http\RedirectResponse
     {
         $v = \validator($request->all(), [
             'id'      => 'required|exists:torrents',
@@ -104,7 +97,7 @@ class ModerationController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.moderation.index')
+            return \to_route('staff.moderation.index')
                 ->withErrors($v->errors());
         }
 
@@ -122,17 +115,14 @@ class ModerationController extends Controller
 %s', $torrent->name, $request->input('message'));
         $privateMessage->save();
 
-        return \redirect()->route('staff.moderation.index')
+        return \to_route('staff.moderation.index')
             ->withSuccess('Torrent Postponed');
     }
 
     /**
      * Reject A Torrent.
-     *
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
-    public function reject(Request $request)
+    public function reject(Request $request): \Illuminate\Http\RedirectResponse
     {
         $v = \validator($request->all(), [
             'id'      => 'required|exists:torrents',
@@ -141,7 +131,7 @@ class ModerationController extends Controller
         ]);
 
         if ($v->fails()) {
-            return \redirect()->route('staff.moderation.index')
+            return \to_route('staff.moderation.index')
                 ->withErrors($v->errors());
         }
 
@@ -159,7 +149,7 @@ class ModerationController extends Controller
 %s', $torrent->name, $request->input('message'));
         $privateMessage->save();
 
-        return \redirect()->route('staff.moderation.index')
+        return \to_route('staff.moderation.index')
             ->withSuccess('Torrent Rejected');
     }
 }

@@ -30,7 +30,7 @@ class AutoNerdStat extends Command
     /**
      * AutoNerdStat Constructor.
      */
-    public function __construct(private ChatRepository $chatRepository)
+    public function __construct(private readonly ChatRepository $chatRepository)
     {
         parent::__construct();
     }
@@ -53,10 +53,8 @@ class AutoNerdStat extends Command
      * Execute the console command.
      *
      * @throws \Exception
-     *
-     * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         if (\config('chat.nerd_bot') == true) {
             // Site Birthday
@@ -83,8 +81,17 @@ class AutoNerdStat extends Command
             // Most Leeched Torrent
             $leeched = Torrent::latest('leechers')->first();
 
-            // FL Torrents
-            $fl = Torrent::where('free', '=', 1)->count();
+            // 25% FL Torrents
+            $fl25 = Torrent::where('free', '=', 25)->count();
+
+            // 50% FL Torrents
+            $fl50 = Torrent::where('free', '=', 50)->count();
+
+            // 75% FL Torrents
+            $fl75 = Torrent::where('free', '=', 75)->count();
+
+            // 100% FL Torrents
+            $fl100 = Torrent::where('free', '=', 100)->count();
 
             // DU Torrents
             $du = Torrent::where('doubleup', '=', 1)->count();
@@ -109,7 +116,10 @@ class AutoNerdStat extends Command
                 \sprintf('In The Last 24 Hours [color=#93c47d][b]%s[/b][/color] Unique Users Have Logged Into ', $logins).\config('other.title').'!',
                 \sprintf('In The Last 24 Hours [color=#93c47d][b]%s[/b][/color] Torrents Have Been Uploaded To ', $uploads).\config('other.title').'!',
                 \sprintf('In The Last 24 Hours [color=#93c47d][b]%s[/b][/color] Users Have Registered To ', $users).\config('other.title').'!',
-                \sprintf('There Are Currently [color=#93c47d][b]%s[/b][/color] Freeleech Torrents On ', $fl).\config('other.title').'!',
+                \sprintf('There Are Currently [color=#93c47d][b]%s[/b][/color] 25%% Freeleech Torrents On ', $fl25).\config('other.title').'!',
+                \sprintf('There Are Currently [color=#93c47d][b]%s[/b][/color] 50%% Freeleech Torrents On ', $fl50).\config('other.title').'!',
+                \sprintf('There Are Currently [color=#93c47d][b]%s[/b][/color] 75%% Freeleech Torrents On ', $fl75).\config('other.title').'!',
+                \sprintf('There Are Currently [color=#93c47d][b]%s[/b][/color] 100%% Freeleech Torrents On ', $fl100).\config('other.title').'!',
                 \sprintf('There Are Currently [color=#93c47d][b]%s[/b][/color] Double Upload Torrents On ', $du).\config('other.title').'!',
                 \sprintf('Currently [url=%s]%s[/url] Is The Best Seeded Torrent On ', $seededUrl, $seeded->name).\config('other.title').'!',
                 \sprintf('Currently [url=%s]%s[/url] Is The Most Leeched Torrent On ', $leechedUrl, $leeched->name).\config('other.title').'!',
@@ -121,7 +131,7 @@ class AutoNerdStat extends Command
                 \config('other.title').\sprintf(' Birthday Is [b]%s[/b]!', $bday),
                 \config('other.title').' Is King!',
             ];
-            $selected = \mt_rand(0, \count($statArray) - 1);
+            $selected = random_int(0, \count($statArray) - 1);
 
             // Auto Shout Nerd Stat
             $this->chatRepository->systemMessage($statArray[$selected], 2);
